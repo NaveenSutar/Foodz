@@ -1,36 +1,16 @@
-import { FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from "react-native";
+import { FlatList, LayoutAnimation, Platform, SectionList, StyleSheet, Text, TouchableOpacity, UIManager, View } from "react-native";
 import React, { Component } from 'react';
 
 import { Colours } from './../res/Colours';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export default class Collapse extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
             data: props.data,
+            allData: props.allData,
             expanded: false,
-            textColor: [
-                Colours.LeanText,
-                Colours.seaText,
-                Colours.vegText,
-                Colours.fruitsText,
-                Colours.alterText,
-                Colours.sauceText,
-            ],
-
-            boxColor: [
-                Colours.LeanBack,
-                Colours.seaBack,
-                Colours.vegBack,
-                Colours.fruitsBack,
-                Colours.alterBack,
-                Colours.sauceBack,
-            ],
-
-            selectedColor: Colours.LeanText,
-            selectedBoxColor: Colours.LeanBack,
         }
 
         if (Platform.OS === 'android') {
@@ -39,20 +19,13 @@ export default class Collapse extends Component {
     }
 
     componentDidMount() {
-        this._getRandomColor();
-        console.log('Called');
-    }
 
-    _getRandomColor() {
-        var num = Math.floor(Math.random() * this.state.textColor.length);
-        var boxColour = this.state.boxColor[num];
-        var colour = this.state.textColor[num];
-        this.setState({
-            selectedBoxColor: boxColour,
-            selectedColor: colour
-        })
+        const foodData = this.state.data.reduce((r, s) => {
+            r.push({ title: s.subCategoryname, data: s.items });
+            return r;
+        }, []);
 
-        console.log(num);
+        this.setState({ data: foodData })
     }
 
     render() {
@@ -60,30 +33,54 @@ export default class Collapse extends Component {
             <View>
                 <TouchableOpacity activeOpacity={0.9} style={styles.row} onPress={() => this.toggleExpand()}>
                     <View style={styles.titieImageContainer}>
-                        <View style={[styles.titieImageBack, { backgroundColor: this.state.selectedBoxColor }]} >
-                            <Icon name={'fast-food'} size={30} color={this.state.selectedColor} />
+                        <View style={[styles.titieImageBack, { backgroundColor: this.state.allData.colorCode + '50' }]} >
+                            <Icon name={'fast-food'} size={30} color={this.state.allData.colorCode} />
                         </View>
-                        <Text style={[styles.title, { color: this.state.selectedColor }]}>{this.props.title}</Text>
+                        <Text style={[styles.title, { color: this.state.allData.colorCode }]}>{this.props.title} <Text style={{ color: Colours.textColour }}>{this.state.allData.servingSize ? '(' + this.state.allData.servingSize + ')' : ''} </Text></Text>
                     </View>
-                    <Icon name={this.state.expanded ? 'caret-up' : 'caret-down'} size={15} color={Colours.seaBack} />
+                    <Icon name={this.state.expanded ? 'caret-up' : 'caret-down'} size={15} color={Colours.dropDown} />
                 </TouchableOpacity>
-
                 {
                     this.state.expanded &&
-
                     <View style={styles.child}>
-                        <FlatList
-                            data={this.state.data}
-                            numColumns={1}
-                            scrollEnabled={false}
-                            renderItem={({ item, index }) =>
+                        <SectionList
+                            sections={this.state.data}
+                            renderItem={({ item }) =>
                                 <View>
                                     <View style={styles.childHr} />
-                                    <TouchableOpacity activeOpacity={0.9} style={styles.childRow} >
-                                        <Text style={styles.childData} >{item.value}</Text>
-                                    </TouchableOpacity>
+                                    <Text style={[styles.childData, styles.childRow]} >{item}</Text>
                                 </View>
-                            } />
+                            }
+                            renderSectionHeader={({ section: { title } }) => (
+                                <>
+                                    {title
+                                        ?
+                                        <Text style={[styles.childHeading, { color: this.state.allData.colorCode }]} >{title} <Text style={{ color: Colours.textColour }}></Text></Text>
+                                        :
+                                        <></>
+                                    }
+                                </>
+                            )}
+                            keyExtractor={(item, index) => item.enName + index}
+                        />
+                        {(this.state.allData.quote != "")
+                            ?
+                            <View>
+                                <Text style={{padding : 10, paddingBottom:20, textAlign:'center', color:Colours.TextPrimarySemiMoreDark}} >{this.state.allData.quote}</Text>
+                            </View>
+                            :
+                            <></>
+                        }
+
+                        {(this.state.allData.protip != "")
+                            ?
+                            <View style={{backgroundColor:Colours.seaBack, marginTop:0, padding:15, borderRadius:10, margin:15}}>
+                                <Text style={{backgroundColor:Colours.tipBack, borderRadius:10, width:50, textAlign:'center', color:'#fff'}}>TIP</Text>
+                                <Text style={{color:'#fff',  marginTop:10}}>{this.state.allData.protip}</Text>
+                            </View>
+                            :
+                            <></>
+                        }
                     </View>
                 }
 
@@ -147,6 +144,14 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         fontSize: 14,
         color: Colours.textColour
+    },
+
+    childHeading: {
+        fontWeight: 'bold',
+        paddingLeft: 15,
+        paddingBottom: 10,
+        paddingTop: 20,
+        fontSize: 16,
     },
 
     childHr: {

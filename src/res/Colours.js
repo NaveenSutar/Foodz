@@ -5,7 +5,7 @@ const Colours = {
     searchBack: '#e8eff7',
     LeanBack: '#fce2ed',
     LeanText: '#f368a3',
-    seaBack: '#d9e8ff',
+    seaBack: '#04d9ff',
     seaText: '#6799f7',
     vegBack: '#b2eadf',
     vegText: '#12a680',
@@ -20,6 +20,11 @@ const Colours = {
     inactive: '#ec5254',
     white:'#ffffff',
     border:'#e8e8e8',
+
+    tipBack:'#0296b0',
+    
+
+    dropDown: '#d9e8ff',
     
     TextPrimary: '#fff',
     TextPrimarySemiDark: '#e1e1e1',

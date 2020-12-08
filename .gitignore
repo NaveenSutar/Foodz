@@ -32,7 +32,6 @@ local.properties
 # node.js
 #
 node_modules/
-Foodz/
 npm-debug.log
 yarn-error.log
 
